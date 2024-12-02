@@ -7,12 +7,8 @@ class Solver(advent.Advent):
     part_2_test_solution = 31
 
     def process_data(self, data):
-        left_list, right_list = [], []
-        for line in data:
-            left, right = map(int, line.split())
-            left_list.append(left)
-            right_list.append(right)
-        return left_list, right_list
+        pairs = [map(int, line.split()) for line in data]
+        return map(list, zip(*pairs))
 
     def part_1(self, left_list, right_list):
         left_list.sort()
