@@ -20,5 +20,5 @@ class Solver(advent.Advent):
         return sum(abs(left - right) for left, right in zip(left_list, right_list))
 
     def part_2(self, left_list, right_list):
-        frequency = Counter(right_list)
-        return sum(val * frequency[val] for val in left_list)
+        left_freq, right_freq = map(Counter, (left_list, right_list))
+        return sum(key * val * right_freq[key] for key, val in left_freq.items())
