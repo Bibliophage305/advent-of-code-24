@@ -14,7 +14,7 @@ beautifulsoup4 = "^4.12.3"
 
 [tool.poetry.scripts]
 create = "advent_of_code.manage:create"
-day = "advent_of_code.manage:run_day"
+day = "advent_of_code.manage:run"
 
 
 [build-system]

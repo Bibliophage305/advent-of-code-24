@@ -10,15 +10,6 @@ from datetime import datetime, date, UTC
 YEAR = os.getenv("YEAR", datetime.now().year)
 
 
-def _get_day_from_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("day")
-    day = parser.parse_args().day
-    if day not in map(str, range(1, 26)):
-        raise ValueError("Day must be a number between 1 and 25")
-    return day
-
-
 def _fetch_url(day, parts):
     if not os.getenv("TOKEN"):
         raise ValueError("No token found. Please set the TOKEN environment variable")
@@ -60,19 +51,25 @@ def _get_test_solution(day: str) -> str | None:
     return None
 
 
-def create():
-    try:
-        day = _get_day_from_args()
-    except ValueError as e:
-        print(e)
-        return
+def _get_day_from_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("day", nargs="?")
+    args = parser.parse_args()
+    day = args.day
+    if day is not None and day not in map(str, range(1, 26)):
+        raise ValueError("Day must be a number between 1 and 25")
+    return day
+
+
+def _create_day(day, skip_overwrite=False):
     publish_date = datetime.combine(
         date(int(YEAR), 12, int(day) + 1),
         datetime.min.time(),
         tzinfo=UTC,
     )
     if datetime.now(UTC) < publish_date:
-        print(f"Day {day} hasn't been published yet!")
+        if not skip_overwrite:
+            print(f"Day {day} hasn't been published yet!")
         return
     filename_prefix = f"advent_of_code/{day}/"
     pathlib.Path(filename_prefix).mkdir(parents=True, exist_ok=True)
@@ -100,6 +97,8 @@ class Solver(advent.Advent):
     _get_test_data(day)
     for filename, default_content in filenames.items():
         if pathlib.Path(filename).is_file():
+            if skip_overwrite:
+                continue
             while True:
                 token = input(f"{filename} already exists, overwrite? (y/N): ")
                 match token.strip():
@@ -118,12 +117,21 @@ class Solver(advent.Advent):
             f.write(default_content)
 
 
-def run_day():
+def create():
+    day = _get_day_from_args()
+    if day is None:
+        for day in range(1, 26):
+            _create_day(str(day), skip_overwrite=True)
+        return
     try:
         day = _get_day_from_args()
     except ValueError as e:
         print(e)
         return
+    _create_day(day)
+
+
+def _run_day(day):
     try:
         module = importlib.import_module(f"advent_of_code.{day}.solver")
     except ModuleNotFoundError as e:
@@ -131,3 +139,19 @@ def run_day():
         return
     s = module.Solver(day)
     s.run()
+
+
+def run():
+    day = _get_day_from_args()
+    if day is None:
+        for day in range(1, 26):
+            print(f"Day {day}")
+            _run_day(str(day))
+            print()
+        return
+    try:
+        day = _get_day_from_args()
+    except ValueError as e:
+        print(e)
+        return
+    _run_day(day)
