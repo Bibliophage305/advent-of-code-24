@@ -6,6 +6,7 @@ from functools import cache
 from bs4 import BeautifulSoup
 import os
 from datetime import datetime, date, UTC
+from pytz import timezone
 
 YEAR = os.getenv("YEAR", datetime.now().year)
 
@@ -61,15 +62,50 @@ def _get_day_from_args():
     return day
 
 
+def _human_readable_timedelta(delta):
+    days = delta.days
+    hours, remainder = divmod(delta.seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+
+    def format_unit(value, unit):
+        if value == 1:
+            return f"{value} {unit}"
+        else:
+            return f"{value} {unit}s"
+
+    components = []
+    if days > 0:
+        components.append((days, "day"))
+    if hours > 0:
+        components.append((hours, "hour"))
+    if minutes > 0:
+        components.append((minutes, "minute"))
+    if seconds > 0:
+        components.append((seconds, "second"))
+
+    components = components[:2]
+
+    if len(components) == 2:
+        return f"{format_unit(*components[0])} and {format_unit(*components[1])}"
+    elif len(components) == 1:
+        return format_unit(*components[0])
+    else:
+        return "less than a second"
+
+
 def _create_day(day, skip_overwrite=False):
     publish_date = datetime.combine(
-        date(int(YEAR), 12, int(day) + 1),
+        date(int(YEAR), 12, int(day)),
         datetime.min.time(),
-        tzinfo=UTC,
+        tzinfo=timezone("US/Eastern"),
     )
-    if datetime.now(UTC) < publish_date:
+    now = datetime.now(UTC)
+    if now < publish_date:
         if not skip_overwrite:
             print(f"Day {day} hasn't been published yet!")
+            print(
+                f"You have to wait for {_human_readable_timedelta(publish_date - now)}"
+            )
         return
     filename_prefix = f"advent_of_code/{day}/"
     pathlib.Path(filename_prefix).mkdir(parents=True, exist_ok=True)
