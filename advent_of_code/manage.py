@@ -43,7 +43,7 @@ def _get_test_data(day):
     return largest_code_tag.get_text().strip() if largest_code_tag else ""
 
 
-def _get_test_solution(day: str) -> str | None:
+def _get_test_solution(day):
     soup = BeautifulSoup(_get_html_content(day), "html.parser")
     code_tags = soup.find_all("code")
     for code_tag in reversed(code_tags):
