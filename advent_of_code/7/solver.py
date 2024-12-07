@@ -14,9 +14,9 @@ class Solver(advent.Advent):
             answers.append(int(answer.strip()))
             operands.append(list(map(int, operand.strip().split())))
         return [answers, operands]
-    
+
     def is_possible(self, answer, operands, operators):
-        for operators in itertools.product(operators, repeat=len(operands)-1):
+        for operators in itertools.product(operators, repeat=len(operands) - 1):
             expression = operands[0]
             for operator, operand in zip(operators, operands[1:]):
                 if operator == "+":
@@ -35,4 +35,6 @@ class Solver(advent.Advent):
         return sum(a for a, o in zip(answers, operands) if self.is_possible(a, o, "+*"))
 
     def part_2(self, answers, operands):
-        return sum(a for a, o in zip(answers, operands) if self.is_possible(a, o, "+*|"))
+        return sum(
+            a for a, o in zip(answers, operands) if self.is_possible(a, o, "+*|")
+        )
