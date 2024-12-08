@@ -20,12 +20,10 @@ class Solver(advent.Advent):
         antinodes = set()
         for locations in antennae.values():
             for a, b in combinations(locations, 2):
-                difference_vector = (b[0] - a[0], b[1] - a[1])
-                new_antinodes = [
-                    (a[0] - difference_vector[0], a[1] - difference_vector[1]),
-                    (difference_vector[0] + b[0], difference_vector[1] + b[1]),
-                ]
-                for r_i, c_i in new_antinodes:
+                for r_i, c_i in [
+                    (2*a[0] - b[0], 2*a[1] - b[1]),
+                    (2*b[0] - a[0], 2*b[1] - a[1])
+                ]:
                     if 0 <= r_i < height and 0 <= c_i < width:
                         antinodes.add((r_i, c_i))
         return len(antinodes)
@@ -34,21 +32,14 @@ class Solver(advent.Advent):
         antinodes = set()
         for locations in antennae.values():
             for a, b in combinations(locations, 2):
-                difference_vector = (b[0] - a[0], b[1] - a[1])
                 r_i, c_i = a
-                while True:
-                    if 0 <= r_i < height and 0 <= c_i < width:
-                        antinodes.add((r_i, c_i))
-                    else:
-                        break
-                    r_i -= difference_vector[0]
-                    c_i -= difference_vector[1]
+                while 0 <= r_i < height and 0 <= c_i < width:
+                    antinodes.add((r_i, c_i))
+                    r_i -= b[0] - a[0]
+                    c_i -= b[1] - a[1]
                 r_i, c_i = b
-                while True:
-                    if 0 <= r_i < height and 0 <= c_i < width:
-                        antinodes.add((r_i, c_i))
-                    else:
-                        break
-                    r_i += difference_vector[0]
-                    c_i += difference_vector[1]
+                while 0 <= r_i < height and 0 <= c_i < width:
+                    antinodes.add((r_i, c_i))
+                    r_i += b[0] - a[0]
+                    c_i += b[1] - a[1]
         return len(antinodes)
