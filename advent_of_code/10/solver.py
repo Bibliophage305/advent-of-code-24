@@ -9,7 +9,7 @@ class Solver(advent.Advent):
 
     def process_data(self, data):
         data = [row.strip() for row in data]
-        graph, trailheads, trailtails = defaultdict(set), set(), set()
+        graph, trailheads, trailtails = defaultdict(list), set(), set()
         for r_i, row in enumerate(data):
             for c_i, cell in enumerate(row):
                 if cell == "0":
@@ -28,7 +28,7 @@ class Solver(advent.Advent):
                         and 0 <= c_r_i < len(row)
                         and int(cell) + 1 == int(data[n_r_i][c_r_i])
                     ):
-                        graph[(r_i, c_i)].add((n_r_i, c_r_i))
+                        graph[(r_i, c_i)].append((n_r_i, c_r_i))
         return [graph, trailheads, trailtails]
 
     def count_trails(self, graph, trailheads, trailtails, only_unique=True):
@@ -43,7 +43,7 @@ class Solver(advent.Advent):
                 if current in trailtails:
                     total += 1
                     continue
-                stack += [neighbour for neighbour in graph[current]]
+                stack += graph[current]
         return total
 
     def part_1(self, graph, trailheads, trailtails):
